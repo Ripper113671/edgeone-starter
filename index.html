@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<!--
+==========================================================================
+ 文件：index.html  ——  网页的"骨架"
+==========================================================================
+ 这个文件是干嘛的？
+   它是一份"图纸"。浏览器打开网站时，第一个读的就是它。
+   它决定了页面上"有哪些东西"：一个标题、一段话、一个按钮……
+
+ 你会学到什么？
+   - HTML 的基本结构：<head>（给浏览器看的信息）+ <body>（给人看的内容）
+   - 怎么把 CSS（样式）和 JS（行为）两个文件"挂"到页面上
+   - 怎么用中文注释解释每个标签
+
+ 怎么跑？
+   方式一（最简单）：双击这个文件，用浏览器打开就能看
+   方式二（更真实）：在本文件夹执行  python3 -m http.server 8080
+                      然后浏览器访问 http://localhost:8080
+
+ 阅读建议
+   从上往下读，遇到不认识的标签就看它上面的注释。
+==========================================================================
+-->
+<html lang="zh-CN">
+<head>
+  <!--
+    <meta charset="UTF-8">
+      "charset" = 字符集，"UTF-8" = 一种能装下全世界文字的编码。
+      不写这行，中文可能变成乱码（一排问号或方块）。
+      类比：告诉浏览器"这份文件是中文写的，请按中文来读"。
+  -->
+  <meta charset="UTF-8" />
+
+  <!--
+    viewport（视口）设置：
+      让手机浏览时不要"假装自己是电脑"，否则手机上字会小到看不清。
+      width=device-width = 页面宽度跟设备屏幕一样宽
+      initial-scale=1.0   = 初始缩放比例 100%
+  -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!--
+    <title> 显示在"浏览器标签页"上的文字，不是页面正文。
+      比如你打开一堆标签页，鼠标悬停时看到的就是它。
+  -->
+  <title>我的第一个上线项目 · EdgeOne Makers 示例</title>
+
+  <!--
+    网站图标（favicon）= 标签页左上角那个小图标。
+    这里直接用 emoji 当图标，省得额外准备图片文件。
+  -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>" />
+
+  <!--
+    把样式表挂上来。
+    rel="stylesheet" = "这是一个样式表"
+    href="style.css" = 样式文件的位置（和本文件在同一层文件夹）
+    类比：HTML 是毛坯房，这个 style.css 就是装修方案。
+  -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!--
+    <body> 里面才是用户真正"看得见"的内容。
+    下面用一个 <div class="wrap"> 把所有内容包起来，方便统一控制宽度和居中。
+    class="wrap" 里的 wrap 是"类名"，CSS 里靠它选中这个元素来美化。
+  -->
+  <div class="wrap">
+
+    <!--
+      <header> = 页头区域（语义化标签，意思是"这块是头部"）。
+      用语义化标签的好处：代码更好读，搜索引擎和无障碍工具也更懂它。
+    -->
+    <header class="hero">
+      <!-- 一行小标签，起装饰作用 -->
+      <span class="badge">已部署 · 静态站点</span>
+
+      <!-- <h1> = 一级标题，一个页面通常只写一个 -->
+      <h1>你好，世界 <span class="wave">👋</span></h1>
+
+      <!-- <p> = 段落（paragraph）。这里是页面主文案 -->
+      <p class="lead">
+        这是一个<strong>零依赖、零构建</strong>的静态网站模板。
+        它由 AI 生成、已经推到 Git 仓库，随时可以导入 EdgeOne Makers 上线。
+      </p>
+    </header>
+
+    <!--
+      <main> = 页面主体内容区。
+    -->
+    <main>
+      <!--
+        <section> = 内容分块。这里第一块用来演示"点击交互"。
+      -->
+      <section class="card">
+        <h2>1. 试个按钮</h2>
+        <p>点下面的按钮，数字会 +1。这段逻辑写在同一目录的 <code>app.js</code> 里。</p>
+
+        <!--
+          <button> = 按钮。
+            id="countBtn" 是这个按钮的"身份证号"，
+            JS 里用 document.getElementById('countBtn') 就能精确找到它。
+        -->
+        <button id="countBtn" class="btn">
+          我点过 <span id="count">0</span> 次
+        </button>
+
+        <!-- 这行用来显示问候语，内容由 JS 在运行时填进去 -->
+        <p id="greeting" class="greeting">正在识别当前时间……</p>
+      </section>
+
+      <!-- 第二块：解释这个项目的技术选择 -->
+      <section class="card">
+        <h2>2. 为什么这么"素"</h2>
+        <!-- <ul> = 无序列表，<li> = 列表中的一项 -->
+        <ul class="list">
+          <li><b>没有框架</b>：不用 React/Vue，少一层编译，导入平台时不必配构建命令</li>
+          <li><b>没有 npm 依赖</b>：不用 <code>npm install</code>，仓库干净、部署快</li>
+          <li><b>纯静态</b>：只有 HTML/CSS/JS 三个文件，任何静态托管都能跑</li>
+        </ul>
+      </section>
+
+      <!-- 第三块：上线后该做什么 -->
+      <section class="card">
+        <h2>3. 下一步</h2>
+        <ol class="list">
+          <li>在 EdgeOne Makers 里选「从 Git 导入」，选中本仓库</li>
+          <li>框架预设选"静态 / 其他"，<b>构建命令留空</b>，输出目录填 <code>./</code></li>
+          <li>部署完成后，在「自定义域名」里绑定你自己的域名</li>
+        </ol>
+      </section>
+    </main>
+
+    <!--
+      <footer> = 页脚。通常放版权、备案号等信息。
+      注意：如果网站用国内节点托管，备案号必须展示在页脚，这是规定。
+    -->
+    <footer class="foot">
+      <p>用 AI 生成 · 托管在 EdgeOne Makers · © <span id="year">2026</span></p>
+    </footer>
+  </div>
+
+  <!--
+    把行为脚本挂上来。放在 </body> 之前（也就是所有元素都解析完之后），
+    这样 JS 一执行就能立刻找到页面上的元素，不会出现"找不到按钮"的报错。
+  -->
+  <script src="app.js"></script>
+</body>
+</html>

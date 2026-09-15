@@ -1,0 +1,291 @@
+/*
+==========================================================================
+ 文件：style.css  ——  网页的"装修方案"
+==========================================================================
+ 这个文件是干嘛的？
+   HTML 决定"页面里有什么"（标题、段落、按钮），
+   CSS 决定"它们长什么样"（颜色、大小、间距、圆角、阴影）。
+   类比：HTML 是毛坯房，CSS 就是刷墙、铺地板、摆家具。
+
+ 你会学到什么？
+   - 三种选择器：:root 变量、类选择器（.wrap）、标签选择器（h1）
+   - 用 CSS 变量统一管理颜色，改一处全站生效
+   - flex 布局怎么做居中
+   - 响应式：手机上自动缩小留白（@media）
+
+ 怎么生效？
+   只要 index.html 里写了 <link rel="stylesheet" href="style.css" />，
+   浏览器就会自动加载它，不用做别的事。
+
+ 阅读建议
+   从 :root 开始读——那里定义了全站的"调色盘"，
+   后面所有颜色都引用它，所以先看懂变量再看具体样式会轻松很多。
+==========================================================================
+*/
+
+/* ------------------------------------------------------------------
+   1) 全局变量（调色盘 + 尺寸）
+   ":root" 代表整个文档的根节点 <html>，在这里定义的变量全站都能用。
+   写法是 --名字: 值;   使用时写 var(--名字)
+   好处：以后想换主题色，只改这一行，几百处引用全部跟着变。
+------------------------------------------------------------------ */
+:root {
+  --bg: #0b1020;              /* 页面背景：深夜蓝 */
+  --card: rgba(255, 255, 255, 0.06); /* 卡片底色：半透明白，营造玻璃感 */
+  --line: rgba(255, 255, 255, 0.12); /* 边框线颜色 */
+  --text: #e8ecf5;            /* 主要文字颜色：接近白但不刺眼 */
+  --muted: #9aa4bd;           /* 次要文字颜色：灰蓝，用于说明文字 */
+  --brand: #4f8cff;           /* 品牌色：亮蓝，用于按钮和强调 */
+  --brand-2: #8b5cf6;         /* 第二个品牌色：紫色，跟亮蓝做渐变 */
+  --radius: 16px;             /* 统一的圆角大小 */
+  --maxw: 760px;              /* 内容最大宽度，太宽阅读会累 */
+}
+
+/* ------------------------------------------------------------------
+   2) 清除浏览器默认样式
+   浏览器会给元素一些默认边距，各不相同，先统一清零，避免布局诡异。
+   "*" 是通配符，代表"所有元素"。
+   box-sizing: border-box 是重要口诀：
+     让 width 包含内边距和边框，否则你设 100px 宽实际会变得更宽。
+------------------------------------------------------------------ */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ------------------------------------------------------------------
+   3) 页面主体
+------------------------------------------------------------------ */
+body {
+  /* 背景用两团径向渐变，从深蓝到深紫，比纯色更有层次 */
+  background:
+    radial-gradient(1000px 600px at 15% -10%, #1b2a5e 0%, transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, #3a1d5c 0%, transparent 55%),
+    var(--bg);
+
+  color: var(--text);
+
+  /* 字体优先级：先用 Mac 上的苹方，再到 Windows 的微软雅黑，最后兜底无衬线 */
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC",
+               "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
+
+  line-height: 1.7;           /* 行高 1.7 倍，中文阅读最舒服的区间 */
+  -webkit-font-smoothing: antialiased; /* Mac 上字体更细腻 */
+  min-height: 100vh;          /* 至少占满一屏高度 */
+}
+
+/* ------------------------------------------------------------------
+   4) 内容容器：限制宽度 + 水平居中
+   margin: 0 auto 是经典的"左右自动边距 = 水平居中"技巧。
+------------------------------------------------------------------ */
+.wrap {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 72px 20px 40px;
+}
+
+/* ------------------------------------------------------------------
+   5) 页头
+------------------------------------------------------------------ */
+.hero {
+  margin-bottom: 36px;
+}
+
+/* 小标签（"已部署 · 静态站点"） */
+.badge {
+  display: inline-block;      /* 行内块：既能设内边距，又不会独占一整行 */
+  font-size: 12px;
+  letter-spacing: 0.06em;     /* 字间距，小字加一点更透气 */
+  color: var(--brand);
+  border: 1px solid var(--line);
+  background: var(--card);
+  padding: 5px 12px;
+  border-radius: 999px;       /* 超大圆角 = 胶囊形状 */
+  margin-bottom: 18px;
+}
+
+h1 {
+  /* clamp(最小, 理想, 最大)：让字号随屏幕自动伸缩，手机小、电脑大 */
+  font-size: clamp(32px, 6vw, 52px);
+  line-height: 1.15;
+  letter-spacing: -0.02em;    /* 大标题收紧一点更精致 */
+}
+
+/* 让 h1 里的渐变文字生效（配合下面的 background-clip） */
+h1 {
+  background: linear-gradient(120deg, #ffffff 20%, #b9c8ff 60%, #c9a6ff 100%);
+  -webkit-background-clip: text;  /* 背景只显示在文字形状内 */
+  background-clip: text;
+  color: transparent;             /* 文字本身透明，透出背后的渐变 */
+}
+
+/* h1 里的手，单独加一点动画（见文件末尾 @keyframes） */
+.wave {
+  display: inline-block;
+  animation: wave 2.4s ease-in-out infinite;
+}
+
+.lead {
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 17px;
+}
+
+.lead strong {
+  color: var(--text);         /* 加粗部分亮一点，制造对比 */
+}
+
+/* ------------------------------------------------------------------
+   6) 卡片
+------------------------------------------------------------------ */
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 26px 24px;
+  margin-bottom: 18px;
+
+  /* 毛玻璃效果：模糊卡片背后的内容。国内绝大多数浏览器都支持 */
+  backdrop-filter: blur(12px);
+
+  /* 添加一点内高光，让卡片有"浮起来"的感觉 */
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset,
+              0 18px 40px rgba(0, 0, 0, 0.25);
+}
+
+.card h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.card p {
+  color: var(--muted);
+  font-size: 15px;
+}
+
+/* 行内代码（<code> 标签）的样式 */
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 2px 6px;
+  border-radius: 6px;
+  color: #cfe0ff;
+}
+
+/* ------------------------------------------------------------------
+   7) 列表
+------------------------------------------------------------------ */
+.list {
+  margin: 12px 0 0 20px;      /* 左边留出位置给列表符号 */
+  color: var(--muted);
+  font-size: 15px;
+}
+
+.list li {
+  margin-bottom: 8px;         /* 每一项之间留点缝，别挤在一起 */
+}
+
+.list b {
+  color: var(--text);
+}
+
+/* ------------------------------------------------------------------
+   8) 按钮
+------------------------------------------------------------------ */
+.btn {
+  margin-top: 16px;
+  font: inherit;              /* 继承父级字体，否则按钮会用系统默认小字体 */
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;            /* 鼠标移上去变成小手，暗示"可点" */
+
+  /* 渐变背景：亮蓝 → 紫 */
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  border: none;
+  border-radius: 12px;
+  padding: 12px 20px;
+
+  /* 过渡：让"悬浮上移"和阴影变化是平滑的，而不是瞬间跳变 */
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+
+  box-shadow: 0 10px 24px rgba(79, 140, 255, 0.28);
+}
+
+/* :hover = 鼠标悬浮时； :active = 按住时 */
+.btn:hover {
+  transform: translateY(-2px);          /* 上移 2px，制造"被抬起"的错觉 */
+  box-shadow: 0 14px 30px rgba(79, 140, 255, 0.42);
+  filter: brightness(1.06);
+}
+
+.btn:active {
+  transform: translateY(0) scale(0.985); /* 按下去轻微缩小，像真的被按下 */
+}
+
+/* 键盘 Tab 选中时的外框，方便不用鼠标的人操作（无障碍） */
+.btn:focus-visible {
+  outline: 2px solid #9ab6ff;
+  outline-offset: 3px;
+}
+
+/* JS 在点击瞬间给按钮加上 .clicked 类，150 毫秒后移除。
+   这里给这个类加一个发光效果，形成一次"闪光脉冲"。 */
+.btn.clicked {
+  /* 外发光：0 0 0 6px 表示紧贴元素、向外扩 6px 的一圈光 */
+  box-shadow: 0 0 0 6px rgba(139, 92, 246, 0.35),
+              0 10px 24px rgba(79, 140, 255, 0.35);
+}
+
+.greeting {
+  margin-top: 14px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------------
+   9) 页脚
+------------------------------------------------------------------ */
+.foot {
+  margin-top: 28px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ------------------------------------------------------------------
+   10) 动画定义
+   @keyframes 描述"一个动画从 0% 到 100% 怎么变"。
+   这里让小手左右摆动 14 度，像在挥手。
+------------------------------------------------------------------ */
+@keyframes wave {
+  0%, 100% { transform: rotate(0deg); }
+  20%      { transform: rotate(14deg); }
+  40%      { transform: rotate(-8deg); }
+  60%      { transform: rotate(10deg); }
+  80%      { transform: rotate(-4deg); }
+}
+
+/* ------------------------------------------------------------------
+   11) 响应式：小屏幕（手机）适配
+   @media 的意思是"当屏幕宽度小于 560px 时，应用下面这些样式"。
+   这里只做两件事：减少留白、让按钮占满整行更好点。
+------------------------------------------------------------------ */
+@media (max-width: 560px) {
+  .wrap { padding: 44px 16px 32px; }
+  .card { padding: 20px 18px; }
+  .btn  { width: 100%; }
+}
+
+/* ------------------------------------------------------------------
+   12) 尊重用户的"减少动画"偏好
+   有些人对动画敏感（会头晕），系统里开了"减少动态效果"。
+   下面这段就是探测到该设置后，把动画全关掉。属于无障碍最佳实践。
+------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
