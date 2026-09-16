@@ -1,291 +1,330 @@
 /*
-==========================================================================
- 文件：style.css  ——  网页的"装修方案"
-==========================================================================
- 这个文件是干嘛的？
-   HTML 决定"页面里有什么"（标题、段落、按钮），
-   CSS 决定"它们长什么样"（颜色、大小、间距、圆角、阴影）。
-   类比：HTML 是毛坯房，CSS 就是刷墙、铺地板、摆家具。
+  ============================================================================
+  文件：style.css —— 网页的"装修图纸"
+  ============================================================================
 
- 你会学到什么？
-   - 三种选择器：:root 变量、类选择器（.wrap）、标签选择器（h1）
-   - 用 CSS 变量统一管理颜色，改一处全站生效
-   - flex 布局怎么做居中
-   - 响应式：手机上自动缩小留白（@media）
+  【这个文件是干嘛的？】
+  它决定了页面长什么样：背景色是什么、画布摆在哪、提示文字什么字体。
+  它完全不参与游戏逻辑，只负责"好看"。
 
- 怎么生效？
-   只要 index.html 里写了 <link rel="stylesheet" href="style.css" />，
-   浏览器就会自动加载它，不用做别的事。
+  【你会学到什么？】
+  1. 像素游戏最核心的一条 CSS：
+     image-rendering: pixelated;
+     浏览器默认在放大图片时会做"平滑插值"（模糊），这条属性告诉它
+     "别插值，给我用最近邻放大"，像素块才能保持方正锐利。
+     没有这一条，整个像素风就毁了，画面会糊成一团。
 
- 阅读建议
-   从 :root 开始读——那里定义了全站的"调色盘"，
-   后面所有颜色都引用它，所以先看懂变量再看具体样式会轻松很多。
-==========================================================================
+  2. Flex 居中三件套：
+     display: flex; justify-content: center; align-items: center;
+     这三行是网页布局里最常用的"把东西放正中间"魔法。
+
+  3. 为什么用 min-height: 100vh 而不是 height: 100%？
+     100vh 表示"视口高度的 100%"，是相对浏览器窗口算的，最可靠。
+     height: 100% 是相对父元素算的，而父元素（body）高度默认是内容撑开的，
+     会导致"设了没效果"这个新手常见困惑。
+
+  【阅读建议】
+  重点看带 ★ 注释的 #game 那一段，其余都是常规装饰。
+  ============================================================================
 */
 
-/* ------------------------------------------------------------------
-   1) 全局变量（调色盘 + 尺寸）
-   ":root" 代表整个文档的根节点 <html>，在这里定义的变量全站都能用。
-   写法是 --名字: 值;   使用时写 var(--名字)
-   好处：以后想换主题色，只改这一行，几百处引用全部跟着变。
------------------------------------------------------------------- */
-:root {
-  --bg: #0b1020;              /* 页面背景：深夜蓝 */
-  --card: rgba(255, 255, 255, 0.06); /* 卡片底色：半透明白，营造玻璃感 */
-  --line: rgba(255, 255, 255, 0.12); /* 边框线颜色 */
-  --text: #e8ecf5;            /* 主要文字颜色：接近白但不刺眼 */
-  --muted: #9aa4bd;           /* 次要文字颜色：灰蓝，用于说明文字 */
-  --brand: #4f8cff;           /* 品牌色：亮蓝，用于按钮和强调 */
-  --brand-2: #8b5cf6;         /* 第二个品牌色：紫色，跟亮蓝做渐变 */
-  --radius: 16px;             /* 统一的圆角大小 */
-  --maxw: 760px;              /* 内容最大宽度，太宽阅读会累 */
-}
-
-/* ------------------------------------------------------------------
-   2) 清除浏览器默认样式
-   浏览器会给元素一些默认边距，各不相同，先统一清零，避免布局诡异。
-   "*" 是通配符，代表"所有元素"。
-   box-sizing: border-box 是重要口诀：
-     让 width 包含内边距和边框，否则你设 100px 宽实际会变得更宽。
------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------
+   全局重置
+   ---------------------------------------------------------------------------
+   浏览器会给元素加一堆默认样式（比如 body 有 8px 外边距）。
+   重置掉它们，能避免"页面莫名多出一圈白边"这类问题。
+   星号 * 是通配选择器，表示"所有元素"。
+   --------------------------------------------------------------------------- */
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+  margin: 0;              /* 干掉默认外边距 */
+  padding: 0;             /* 干掉默认内边距 */
+  box-sizing: border-box; /* 让 width 包含边框和内边距，算尺寸时更符合直觉 */
 }
 
-/* ------------------------------------------------------------------
-   3) 页面主体
------------------------------------------------------------------- */
+html,
 body {
-  /* 背景用两团径向渐变，从深蓝到深紫，比纯色更有层次 */
-  background:
-    radial-gradient(1000px 600px at 15% -10%, #1b2a5e 0%, transparent 60%),
-    radial-gradient(900px 500px at 100% 0%, #3a1d5c 0%, transparent 55%),
-    var(--bg);
-
-  color: var(--text);
-
-  /* 字体优先级：先用 Mac 上的苹方，再到 Windows 的微软雅黑，最后兜底无衬线 */
-  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC",
-               "Microsoft YaHei", "Segoe UI", Roboto, sans-serif;
-
-  line-height: 1.7;           /* 行高 1.7 倍，中文阅读最舒服的区间 */
-  -webkit-font-smoothing: antialiased; /* Mac 上字体更细腻 */
-  min-height: 100vh;          /* 至少占满一屏高度 */
+  width: 100%;
+  height: 100%;
 }
 
-/* ------------------------------------------------------------------
-   4) 内容容器：限制宽度 + 水平居中
-   margin: 0 auto 是经典的"左右自动边距 = 水平居中"技巧。
------------------------------------------------------------------- */
-.wrap {
-  max-width: var(--maxw);
-  margin: 0 auto;
-  padding: 72px 20px 40px;
+body {
+  /* 深色背景，衬托地牢的暗调氛围 */
+  background: #0a0a14;
+
+  /* ---------------------------------------------------------------
+     用 CSS 渐变画一个"氛围背景"：
+     radial-gradient 是径向渐变，从中心往四周散开。
+     中间稍微亮一点点（#14142a），越往外越黑，
+     像是有个火把在远处照着，让画面不那么呆板。
+     --------------------------------------------------------------- */
+  background: radial-gradient(circle at 50% 40%, #16162c 0%, #0a0a14 60%, #05050a 100%);
+  color: #d8d8e8;
+  font-family: "Courier New", Consolas, monospace; /* 等宽字体更有复古感 */
+
+  /* ---------------------------------------------------------------
+     把整个页面做成一个 flex 容器，让里面的内容居中。
+     min-height: 100vh → 至少占满整个屏幕高度（100vh = 100% viewport height）
+     --------------------------------------------------------------- */
+  display: flex;
+  justify-content: center; /* 水平居中 */
+  align-items: center;     /* 垂直居中 */
+
+  overflow: hidden;        /* 禁止滚动条，游戏页面不该出现滚动条 */
+  user-select: none;       /* 禁止鼠标拖选文字 */
+  -webkit-user-select: none;
+
+  /* 移动端点击时不要出现那个灰色高亮块 */
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* ------------------------------------------------------------------
-   5) 页头
------------------------------------------------------------------- */
-.hero {
-  margin-bottom: 36px;
+/* ---------------------------------------------------------------------------
+   游戏舞台：包住画布的"相框"
+   --------------------------------------------------------------------------- */
+#stage {
+  position: relative;   /* 关键！让内部绝对定位的元素（比如提示条）以它为准 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* 一层淡淡的辉光，让游戏区域从深色背景里"浮"出来 */
+  filter: drop-shadow(0 0 32px rgba(90, 110, 200, 0.18));
 }
 
-/* 小标签（"已部署 · 静态站点"） */
-.badge {
-  display: inline-block;      /* 行内块：既能设内边距，又不会独占一整行 */
+/* ---------------------------------------------------------------------------
+   ★★★ 画布样式：整个像素风的关键就在这里 ★★★
+   --------------------------------------------------------------------------- */
+#game {
+  /* ---------------------------------------------------------------
+     1. 尺寸
+     内部真实分辨率是 320×192（写在 HTML 的 width/height 属性上）。
+     这里用 CSS 把它放大。但具体放大多少，交给 JS 动态计算——
+     因为不同屏幕大小不一样，硬编码会导致画面超出屏幕或被压扁。
+
+     JS 会在窗口尺寸变化时重新计算并设置这里的 style.width / style.height，
+     保证"等比缩放、尽可能大、但绝不超出屏幕"。
+     --------------------------------------------------------------- */
+  display: block; /* 去掉 canvas 默认的 inline 底部空隙 */
+
+  /* ---------------------------------------------------------------
+     2. ★ 像素不模糊的秘诀 ★
+     pixelated 告诉浏览器：放大时不要做平滑插值，直接用最近邻算法，
+     一个像素就整整齐齐地复制成一个大方块。
+
+     加 -webkit- 前缀是老版 Safari 的兼容写法（现在大多数情况下已经不需要，
+     但多写一行没坏处）。
+     --------------------------------------------------------------- */
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+
+  /* ---------------------------------------------------------------
+     3. 描边
+     给画布加一圈内阴影，模拟"地牢石框"的感觉。
+     用 box-shadow 的 inset 关键字表示"往内部画"。
+     --------------------------------------------------------------- */
+  box-shadow:
+    0 0 0 2px #2a2a48,          /* 2px 实心描边 */
+    0 0 0 6px #12122a,          /* 再往外一圈更暗的边框 */
+    0 0 48px rgba(70, 90, 180, 0.25); /* 氛围辉光 */
+
+  /* 圆角，让边框不那么生硬 */
+  border-radius: 3px;
+}
+
+/* ---------------------------------------------------------------------------
+   底部提示条：盖在画布下沿，告诉玩家怎么操作
+   --------------------------------------------------------------------------- */
+#hint {
+  position: absolute;          /* 绝对定位，浮在 #stage 之上 */
+  bottom: -34px;               /* 放到画布下方 */
+  left: 50%;                   /* 先挪到水平正中 */
+  transform: translateX(-50%); /* 再往左挪自身宽度的一半，实现真正居中 */
+
   font-size: 12px;
-  letter-spacing: 0.06em;     /* 字间距，小字加一点更透气 */
-  color: var(--brand);
-  border: 1px solid var(--line);
-  background: var(--card);
-  padding: 5px 12px;
-  border-radius: 999px;       /* 超大圆角 = 胶囊形状 */
-  margin-bottom: 18px;
+  letter-spacing: 0.5px;
+  color: #6a6a90;
+  white-space: nowrap;         /* 不换行 */
+  transition: opacity 0.4s;    /* 透明度变化时淡入淡出，更柔和 */
 }
 
-h1 {
-  /* clamp(最小, 理想, 最大)：让字号随屏幕自动伸缩，手机小、电脑大 */
-  font-size: clamp(32px, 6vw, 52px);
-  line-height: 1.15;
-  letter-spacing: -0.02em;    /* 大标题收紧一点更精致 */
+/* 提示条里的按键名（<b> 标签）高亮显示 */
+#hint b {
+  color: #b8b8e0;
+  font-weight: 700;
 }
 
-/* 让 h1 里的渐变文字生效（配合下面的 background-clip） */
-h1 {
-  background: linear-gradient(120deg, #ffffff 20%, #b9c8ff 60%, #c9a6ff 100%);
-  -webkit-background-clip: text;  /* 背景只显示在文字形状内 */
-  background-clip: text;
-  color: transparent;             /* 文字本身透明，透出背后的渐变 */
+/* JS 会给提示条加这个 class，让它淡出隐藏 */
+#hint.fade {
+  opacity: 0;
 }
 
-/* h1 里的手，单独加一点动画（见文件末尾 @keyframes） */
-.wave {
-  display: inline-block;
-  animation: wave 2.4s ease-in-out infinite;
-}
-
-.lead {
-  margin-top: 16px;
-  color: var(--muted);
-  font-size: 17px;
-}
-
-.lead strong {
-  color: var(--text);         /* 加粗部分亮一点，制造对比 */
-}
-
-/* ------------------------------------------------------------------
-   6) 卡片
------------------------------------------------------------------- */
-.card {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 26px 24px;
-  margin-bottom: 18px;
-
-  /* 毛玻璃效果：模糊卡片背后的内容。国内绝大多数浏览器都支持 */
-  backdrop-filter: blur(12px);
-
-  /* 添加一点内高光，让卡片有"浮起来"的感觉 */
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset,
-              0 18px 40px rgba(0, 0, 0, 0.25);
-}
-
-.card h2 {
-  font-size: 18px;
-  margin-bottom: 10px;
-}
-
-.card p {
-  color: var(--muted);
-  font-size: 15px;
-}
-
-/* 行内代码（<code> 标签）的样式 */
-code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 13px;
-  background: rgba(255, 255, 255, 0.08);
-  padding: 2px 6px;
-  border-radius: 6px;
-  color: #cfe0ff;
-}
-
-/* ------------------------------------------------------------------
-   7) 列表
------------------------------------------------------------------- */
-.list {
-  margin: 12px 0 0 20px;      /* 左边留出位置给列表符号 */
-  color: var(--muted);
-  font-size: 15px;
-}
-
-.list li {
-  margin-bottom: 8px;         /* 每一项之间留点缝，别挤在一起 */
-}
-
-.list b {
-  color: var(--text);
-}
-
-/* ------------------------------------------------------------------
-   8) 按钮
------------------------------------------------------------------- */
-.btn {
-  margin-top: 16px;
-  font: inherit;              /* 继承父级字体，否则按钮会用系统默认小字体 */
-  font-weight: 600;
-  color: #fff;
-  cursor: pointer;            /* 鼠标移上去变成小手，暗示"可点" */
-
-  /* 渐变背景：亮蓝 → 紫 */
-  background: linear-gradient(135deg, var(--brand), var(--brand-2));
-  border: none;
-  border-radius: 12px;
-  padding: 12px 20px;
-
-  /* 过渡：让"悬浮上移"和阴影变化是平滑的，而不是瞬间跳变 */
-  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
-
-  box-shadow: 0 10px 24px rgba(79, 140, 255, 0.28);
-}
-
-/* :hover = 鼠标悬浮时； :active = 按住时 */
-.btn:hover {
-  transform: translateY(-2px);          /* 上移 2px，制造"被抬起"的错觉 */
-  box-shadow: 0 14px 30px rgba(79, 140, 255, 0.42);
-  filter: brightness(1.06);
-}
-
-.btn:active {
-  transform: translateY(0) scale(0.985); /* 按下去轻微缩小，像真的被按下 */
-}
-
-/* 键盘 Tab 选中时的外框，方便不用鼠标的人操作（无障碍） */
-.btn:focus-visible {
-  outline: 2px solid #9ab6ff;
-  outline-offset: 3px;
-}
-
-/* JS 在点击瞬间给按钮加上 .clicked 类，150 毫秒后移除。
-   这里给这个类加一个发光效果，形成一次"闪光脉冲"。 */
-.btn.clicked {
-  /* 外发光：0 0 0 6px 表示紧贴元素、向外扩 6px 的一圈光 */
-  box-shadow: 0 0 0 6px rgba(139, 92, 246, 0.35),
-              0 10px 24px rgba(79, 140, 255, 0.35);
-}
-
-.greeting {
-  margin-top: 14px;
-  font-size: 14px;
-  color: var(--muted);
-}
-
-/* ------------------------------------------------------------------
-   9) 页脚
------------------------------------------------------------------- */
-.foot {
-  margin-top: 28px;
-  text-align: center;
-  font-size: 13px;
-  color: var(--muted);
-}
-
-/* ------------------------------------------------------------------
-   10) 动画定义
-   @keyframes 描述"一个动画从 0% 到 100% 怎么变"。
-   这里让小手左右摆动 14 度，像在挥手。
------------------------------------------------------------------- */
-@keyframes wave {
-  0%, 100% { transform: rotate(0deg); }
-  20%      { transform: rotate(14deg); }
-  40%      { transform: rotate(-8deg); }
-  60%      { transform: rotate(10deg); }
-  80%      { transform: rotate(-4deg); }
-}
-
-/* ------------------------------------------------------------------
-   11) 响应式：小屏幕（手机）适配
-   @media 的意思是"当屏幕宽度小于 560px 时，应用下面这些样式"。
-   这里只做两件事：减少留白、让按钮占满整行更好点。
------------------------------------------------------------------- */
-@media (max-width: 560px) {
-  .wrap { padding: 44px 16px 32px; }
-  .card { padding: 20px 18px; }
-  .btn  { width: 100%; }
-}
-
-/* ------------------------------------------------------------------
-   12) 尊重用户的"减少动画"偏好
-   有些人对动画敏感（会头晕），系统里开了"减少动态效果"。
-   下面这段就是探测到该设置后，把动画全关掉。属于无障碍最佳实践。
------------------------------------------------------------------- */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.001ms !important;
-    transition-duration: 0.001ms !important;
+/* ---------------------------------------------------------------------------
+   屏幕特别矮的时候（比如横放的手机），把提示条藏起来，免得挤占画面
+   --------------------------------------------------------------------------- */
+@media (max-height: 420px) {
+  #hint {
+    display: none;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   触屏控制层（虚拟手柄）
+   ---------------------------------------------------------------------------
+   桌面端彻底不显示，只在触屏设备出现。
+
+   ★ 为什么用 (hover: none) 和 (pointer: coarse) 判断，而不是判断屏幕宽度？★
+   因为"是不是触屏"和"屏幕多大"是两件事：
+     · 一台小窗口的台式机 → 屏幕小但**有**鼠标，不该显示虚拟按键
+     · 一台横放的大平板  → 屏幕大但**没有**鼠标，应该显示虚拟按键
+   用宽度判断一定会误伤，用"有没有精确指针"判断才准确。
+   --------------------------------------------------------------------------- */
+#touch-controls {
+  display: none;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  #touch-controls {
+    display: block;
+  }
+
+  /* 触屏有虚拟按钮了，底下那行"WASD/J"的键盘提示就没意义了，藏掉 */
+  #hint {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   控制层容器
+   ---------------------------------------------------------------------------
+   ★ pointer-events: none 是关键 ★
+   整个容器铺满屏幕底部，但我们只希望**按钮本身**能接收触摸，
+   空白区域必须"漏"下去 —— 否则手指点在按钮旁边的空白处会被这层吃掉，
+   玩家会觉得"怎么点都没反应"。
+   所以容器设 none（不接收），按钮单独设 auto（接收）。
+   --------------------------------------------------------------------------- */
+#touch-controls {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 220px;
+  pointer-events: none;
+  z-index: 20;
+}
+
+/* ---- 左下角：十字方向键（九宫格布局） ----
+   用 grid 的 3×3 网格，把四个方向摆成十字，中间留空。
+   比用绝对定位一个个算 left/top 清楚得多，以后想加按键只要指定 grid-area。 */
+.pad {
+  position: absolute;
+  left: calc(16px + env(safe-area-inset-left, 0px));
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  width: 156px;
+  height: 156px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 4px;
+}
+
+.pad-up    { grid-area: 1 / 2; }
+.pad-left  { grid-area: 2 / 1; }
+.pad-right { grid-area: 2 / 3; }
+.pad-down  { grid-area: 3 / 2; }
+
+/* ---- 右下角：动作键 ---- */
+.pad-actions {
+  position: absolute;
+  right: calc(22px + env(safe-area-inset-right, 0px));
+  bottom: calc(30px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+/* ---------------------------------------------------------------------------
+   虚拟按键本体
+   --------------------------------------------------------------------------- */
+.tbtn {
+  /* 只有按钮接收触摸（容器是 none，这里要改回来） */
+  pointer-events: auto;
+
+  /* 清掉浏览器给 <button> 的默认外观，否则每个平台长得都不一样 */
+  -webkit-appearance: none;
+  appearance: none;
+  outline: none;
+
+  border: 1px solid rgba(150, 165, 220, 0.45);
+  border-radius: 12px;
+  background: rgba(40, 44, 78, 0.5);
+  color: #c8cbe8;
+  font-family: inherit;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  /* ★ touch-action: none 必须加 ★
+     不加的话，浏览器会把"手指按住并轻微移动"理解成滚动页面，
+     发一个 pointercancel 把我们的按键中断掉 —— 表现就是
+     "按住方向键走两步就突然不动了"。这是移动端最经典的坑。 */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  transition: background 0.08s, transform 0.08s;
+}
+
+/* 十字键的按钮撑满自己的格子 */
+.pad .tbtn {
+  width: 100%;
+  height: 100%;
+  font-size: 15px;
+}
+
+/* 按下时的高亮反馈：颜色变亮 + 微微缩小，手指能"感觉到"自己点到了 */
+.tbtn.active {
+  background: rgba(110, 140, 230, 0.85);
+  border-color: rgba(180, 200, 255, 0.8);
+  color: #fff;
+  transform: scale(0.93);
+}
+
+/* 攻击键：最大的圆钮，暖红色，放在最顺手的位置 */
+.act-attack {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  font-size: 14px;
+  background: rgba(190, 85, 68, 0.55);
+  border-color: rgba(240, 150, 120, 0.5);
+  color: #ffd8cc;
+}
+
+.act-attack.active {
+  background: rgba(238, 120, 90, 0.9);
+  border-color: rgba(255, 190, 170, 0.9);
+}
+
+/* 确认键：稍小的圆钮，冷蓝色，和攻击键拉开区分 */
+.act-confirm {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  /* 中文比英文点阵宽带得多，10px 的"开始"两个字会糊成一团，所以要给到 12px */
+  font-size: 12px;
+  background: rgba(70, 120, 200, 0.5);
+  border-color: rgba(140, 180, 240, 0.5);
+  color: #d4e4ff;
+}
+
+.act-confirm.active {
+  background: rgba(110, 160, 240, 0.9);
+  border-color: rgba(190, 215, 255, 0.9);
 }
